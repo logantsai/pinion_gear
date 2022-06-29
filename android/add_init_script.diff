@@ -1,0 +1,77 @@
+diff --git a/ev_charger_pro/bc_handler.sh b/ev_charger_pro/bc_handler.sh
+new file mode 100644
+index 0000000..4997656
+--- /dev/null
++++ b/ev_charger_pro/bc_handler.sh
+@@ -0,0 +1,5 @@
++#!/system/bin/sh
++
++echo "spidev test" > /dev/kmsg
++/system/bin/spidev_test -H -t -s 9600000 -D /dev/spidev7.0
++
+diff --git a/ev_charger_pro/ev_charger_pro.mk b/ev_charger_pro/ev_charger_pro.mk
+index dad7294..9155e38 100644
+--- a/ev_charger_pro/ev_charger_pro.mk
++++ b/ev_charger_pro/ev_charger_pro.mk
+@@ -421,3 +421,9 @@ PRODUCT_PACKAGES += \
+ ifneq ($(filter eng userdebug,$(TARGET_BUILD_VARIANT)),)
+     PRODUCT_PACKAGES += ubnt_ble_mac_programmer
+ endif
++
++# UBNT rc file to run on init process
++PRODUCT_COPY_FILES += \
++    device/ubnt/ev_charger_pro/ubnt_system.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/ubnt_system.rc \
++    device/ubnt/ev_charger_pro/bc_handler.sh:$(TARGET_COPY_OUT_VENDOR)/bin/bc_handler.sh
++	#device/ubnt/ev_charger_pro/spidev_test:$(TARGET_COPY_OUT_SYSTEM)/system/bin/spidev_test
+diff --git a/ev_charger_pro/init.target.rc b/ev_charger_pro/init.target.rc
+index a7b5c98..14e88d4 100644
+--- a/ev_charger_pro/init.target.rc
++++ b/ev_charger_pro/init.target.rc
+@@ -28,6 +28,7 @@
+ #
+ 
+ import init.carrier.rc
++import ubnt_system.rc
+ 
+ on early-init
+     exec u:r:vendor_modprobe:s0 -- /vendor/bin/modprobe -a -d /vendor/lib/modules audio_apr audio_adsp_loader audio_q6_notifier audio_q6 audio_usf audio_native audio_pinctrl_wcd audio_swr audio_platform audio_swr_ctrl audio_hdmi audio_wcd9xxx audio_wcd_core audio_wsa881x_analog audio_wsa881x audio_mbhc audio_stub audio_digital_cdc audio_analog_cdc audio_wcd_cpe audio_cpe_lsm audio_wcd9335 audio_machine_sdm450 audio_machine_ext_sdm450
+diff --git a/ev_charger_pro/sepolicy/file_contexts b/ev_charger_pro/sepolicy/file_contexts
+index c138e46..004a917 100644
+--- a/ev_charger_pro/sepolicy/file_contexts
++++ b/ev_charger_pro/sepolicy/file_contexts
+@@ -2,6 +2,7 @@
+ 
+ #led notification
+ /(vendor|system/vendor)/bin/notification                     u:object_r:notification_exec:s0
++/(vendor|system/vendor)/bin/bc_handler\.sh               	 u:object_r:qti_init_shell_exec:s0
+ /(vendor|system/vendor)/bin/init.bom_hw_ver_update.sh        u:object_r:set_bom_ver_exec:s0
+ 
+ ###################################
+diff --git a/ev_charger_pro/sepolicy/init_shell.te b/ev_charger_pro/sepolicy/init_shell.te
+index f27c4e7..e0df0ba 100644
+--- a/ev_charger_pro/sepolicy/init_shell.te
++++ b/ev_charger_pro/sepolicy/init_shell.te
+@@ -2,3 +2,4 @@ allow qti_init_shell default_prop:file { getattr read open };
+ allow qti_init_shell configfs:dir create_dir_perms;
+ allow qti_init_shell configfs:file create_file_perms;
+ allow qti_init_shell self:capability dac_override;
++allow qti_init_shell shell_exec:file open;
+diff --git a/ev_charger_pro/ubnt_system.rc b/ev_charger_pro/ubnt_system.rc
+new file mode 100644
+index 0000000..4396dd6
+--- /dev/null
++++ b/ev_charger_pro/ubnt_system.rc
+@@ -0,0 +1,13 @@
++# UBNT rc file to run on init process
++
++on property:dev.bootcomplete=1
++	hmod 755 /vendor/bin/bc_handler.sh
++	write /dev/kmsg "ubnt_systemrc"
++	start bchandler
++
++service bchandler /vendor/bin/bc_handler.sh
++    class main
++    user root
++    group shell root
++    disabled
++    oneshot
