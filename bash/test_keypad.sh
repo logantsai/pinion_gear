@@ -1,5 +1,6 @@
 #!/bin/sh
 
+
 device='/dev/input/event3'
 led_class='/sys/class/leds'
 
