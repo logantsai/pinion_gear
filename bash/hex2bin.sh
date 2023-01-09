@@ -10,6 +10,7 @@ cat << "USAGE"
 USAGE
 }
 
+# only for 32bit data
 input_char_num=${#1}
 if [[ $input_char_num -gt 8 ]]; then
 	echo "too much!"
@@ -17,7 +18,7 @@ if [[ $input_char_num -gt 8 ]]; then
 fi
 
 # fill string to 32 byte (relace whitespace to 0)
-if [[ $input_char_num -lt 8 ]]; then
+if [[ $input_char_num -le 8 ]]; then
 	hex_val=$(printf '%8s' $1 | tr [:blank:] '0')
 fi
 [ "$DEBUG" == 1 ] && echo "$hex_val"
