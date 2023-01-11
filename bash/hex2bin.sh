@@ -33,9 +33,9 @@ bin_string=$(echo $bin_dump | awk '{out=""; for(i=2;i<=NF-1;i++){out=out""$i}; p
 
 # calc the range
 if [[ ! -z $2 ]]; then
-	end_bit=$((31 - $2));
-	len=$3
-	start_bit=$( expr 32 - '(' $2 + $3 ')' );
+	end_bit=$((31 - $2))
+	[[ -n $3 ]] && len=$3 || len=1
+	start_bit=$( expr 32 - '(' $2 + $len ')' )
 fi
 [ "$DEBUG" == 1 ] && echo "start:$start_bit  end:$end_bit"
 
