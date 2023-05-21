@@ -36,6 +36,10 @@ if [[ ! -z $2 ]]; then
 	end_bit=$((31 - $2))
 	[[ -n $3 ]] && len=$3 || len=1
 	start_bit=$( expr 32 - '(' $2 + $len ')' )
+else
+	end_bit=31
+	start_bit=0
+	len=32
 fi
 [ "$DEBUG" == 1 ] && echo "start:$start_bit  end:$end_bit"
 
