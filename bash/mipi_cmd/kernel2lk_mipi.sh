@@ -74,7 +74,7 @@ function kernel2lk()
 			((ceiling++)) ## add 1
 			cmd_size=$((ceiling*4))
 
-			printf "\n    {0x%02x, %s_on_cmd%d}, 0x%s}," \
+			printf "\n    {0x%02x, %s_on_cmd%d, 0x%s}," \
 				$cmd_size $targetPanel $i ${lines[4]} >> $outfile2
 
 			((i++))
