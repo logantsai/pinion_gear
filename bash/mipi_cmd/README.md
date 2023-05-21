@@ -20,3 +20,12 @@ endfunction
 
 ## run "call ClearTailSp" on vim
 ```
+
+5. for last two command you should add delay time by your self
+```
+static struct mipi_dsi_cmd maoshie_jd9168_1024x600_video_on_command[] = {
+	....
+    {0x08, maoshie_jd9168_1024x600_video_on_cmd22}, 0x??},
+    {0x08, maoshie_jd9168_1024x600_video_on_cmd23}, 0x??},
+};
+```

@@ -1,18 +1,23 @@
 #!/bin/bash
 
 ## Should remove all unused tail space or newline char
-file="kernel_mipi_cmd.txt"
+## !! modifiy this to fit your target !!
+file="maoshie_jd9168_1024x600_video_CMD.txt"
+targetPanel="maoshie_jd9168_1024x600_video"
 
 ## panel info
 structHead="static char %s_on_cmd%d[] = {"
 structTail="};"
-targetPanel="maoshie_jd9168_1024x600_video"
+
+structTableHead="static struct mipi_dsi_cmd %s_on_command[] = {"
+
 
 ## lines read from file
 lines=()
 
 ## output file
 outfile="tmp.txt"
+outfile2="tmp2.txt"
 
 function kernel2lk()
 {
@@ -47,7 +52,10 @@ function kernel2lk()
 
 
 # main() {
-	rm -rf $outfile
+	rm -rf $outfile $outfile2
+
+	## commnad table
+	printf "$structTableHead" $targetPanel >> $outfile2
 
 	# Check if the file exists
 	if [ -f "$file" ]; then
@@ -59,11 +67,25 @@ function kernel2lk()
 
 			kernel2lk $i
 
+
+			## estimate command length
+			size=$(echo "ibase=16; ${lines[6]^^}" | bc)
+			ceiling=$(echo "scale=0; ($size+3)/4" | bc)
+			((ceiling++)) ## add 1
+			cmd_size=$((ceiling*4))
+
+			printf "\n    {0x%02x, %s_on_cmd%d}, 0x%s}," \
+				$cmd_size $targetPanel $i ${lines[4]} >> $outfile2
+
 			((i++))
 		done < "$file"
 	else
 		echo "File not found: $file"
 	fi
+
+	## command table end
+    printf "\n$structTail\n" >> $outfile2
+
 
 # } end of main
 
