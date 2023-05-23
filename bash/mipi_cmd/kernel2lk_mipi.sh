@@ -21,11 +21,11 @@ outfile2="tmp2.txt"
 
 function kernel2lk()
 {
-    local size=${lines[0]}
-    local mipi_cmd=${lines[6]}
+    local size=${lines[6]}
+    local mipi_cmd=${lines[0]}
 
 	printf "$structHead\n" $targetPanel $i >> $outfile
-    printf "    0x%s, 0x00, 0x%s, 0x0c,\n    " "$size" "$mipi_cmd" >> $outfile
+    printf "    0x%s, 0x00, 0x%s, 0xc0,\n    " "$size" "$mipi_cmd" >> $outfile
 
 	read -r -a payload <<< "${lines[@]:7}"
 
